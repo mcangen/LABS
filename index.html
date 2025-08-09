@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/b/b0/Escudo_unimag_sm.png">
+    <title>LABS</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #ffffe0;
+        padding: 20px;
+      }
+      h2 {
+        color: #333;
+      }
+      .box {
+        background: #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        width: 300px;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      input {
+        padding: 5px;
+        width: 100%;
+      }
+      button {
+        margin-top: 10px;
+        padding: 8px;
+        width: 100%;
+        cursor: pointer;
+      }
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+      .result {
+        margin-top: 15px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .var-box {
+        background: #eee;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+      }
+      .functions-box {
+        margin-top: 20px;
+        background: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        max-height: 250px;
+        overflow-y: auto;
+      }
+      .functions-box table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .functions-box td {
+        padding: 3px;
+        border-bottom: 1px solid #ddd;
+      }
+      .functions-box td:first-child {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h2>LABS</h2>
+      <h2 style="font-size: 15px;">Dev:Jose Granados</h2>
+    </header>
+    <div class="container">
+      <div  id="boxing" class="box">
+        <h3 style="text-align: center">Calculadora <br> Propagacion de Error</h3>
+        <label>Fórmula:</label>
+        <input type="text" id="formula" oninput="detectarVariables()" />
+
+        <div id="vars-container"></div>
+
+        <button onclick="calcular()">Calcular</button>
+        <button onclick="borrarTodo()" >Borrar</button>
+
+        <div id="mensaje" class="error"></div>
+        <div class="result">
+          <p><strong>Resultado:</strong> <span id="resultado"></span></p>
+          <p><strong>Desviación estándar:</strong> <span id="desv"></span></p>
+        </div>
+      </div>
+
+      <!-- DESVIACION ESTANDAR -->
+       <div id="boxing"
+        style="
+          background: #cacaca;
+          border: 1px solid #ccc;
+          padding: 15px;
+          border-radius: 8px;
+          width: 300px;
+        "
+      >
+        <h3 style="text-align: center">Calculadora <br> Desviacion Estandar</h3>
+
+        <label>Ingresar valor de muestra:</label>
+        <input
+          type="number"
+          id="valor"
+          step="any"
+          style="width: 100%; padding: 5px"
+        />
+        <button
+          onclick="agregarValor()"
+          style="margin-top: 8px; padding: 5px; width: 100%"
+        >
+          Agregar
+        </button>
+         <button onclick="borrarDatos()" style="margin-top: 8px; padding: 5px; width: 100%">Borrar</button>
+
+        <h4>Valores ingresados:</h4>
+        <p id="lista-valores">Ninguno</p>
+
+        <hr />
+
+        <p><strong>Valor Medio:</strong> <span id="valor-medio">-</span></p>
+        <p><strong>Varianza:</strong> <span id="varianza">-</span></p>
+        <p>
+          <strong>Desviación Estándar:</strong> <span id="desviacion">-</span>
+        </p>
+      </div>
+      <!-- Información de laboratorio -->
+       <!--  <div id="boxing"
+        style="
+          flex: 1;
+          max-width: 30%;
+          background: rgb(221, 221, 221);
+          border: 1px solid #ccc;
+          padding: 15px;
+          border-radius: 8px;
+        "
+        class="infolab"
+      >
+      
+        <h3 style="margin-top: 0; text-align: center">
+          Información del Laboratorio
+        </h3>
+
+        <div id="lab-form">
+          <label>Tema:</label>
+          <input type="text" id="tema" style="width: 100%; padding: 5px" />
+
+          <label>Integrantes:</label>
+          <input
+            type="text"
+            id="integrantes"
+            style="width: 100%; padding: 5px"
+          />
+
+          <label>Profesor:</label>
+          <input type="text" id="profesor" style="width: 100%; padding: 5px" />
+
+          <label>Materia:</label>
+          <input type="text" id="materia" style="width: 100%; padding: 5px" />
+
+          <label>Grupo:</label>
+          <input type="text" id="grupo" style="width: 100%; padding: 5px" />
+
+          <button
+            onclick="guardarInfo()"
+            style="margin-top: 10px; padding: 8px; width: 100%"
+          >
+            Guardar
+          </button>
+          
+        </div>
+
+        <div id="lab-info" style="display: none; margin-top: 15px">
+          <p><strong>Tema:</strong> <span id="tema-info"></span></p>
+          <p>
+            <strong>Integrantes:</strong> <span id="integrantes-info"></span>
+          </p>
+          <p><strong>Profesor:</strong> <span id="profesor-info"></span></p>
+          <p><strong>Materia:</strong> <span id="materia-info"></span></p>
+          <p><strong>Grupo:</strong> <span id="grupo-info"></span></p>
+          <button type="button" onclick="resetFormulario()">Nuevo</button>
+        </div>
+      </div>-->
+
+
+    </div>
+
+    <div class="functions-box">
+      <strong>Funciones disponibles:</strong>
+      <table>
+        <tr>
+          <td>abs(x)</td>
+          <td>|x|</td>
+        </tr>
+        <tr>
+          <td>acos(x)</td>
+          <td>cos⁻¹x</td>
+        </tr>
+        <tr>
+          <td>acosh(x)</td>
+          <td>cosh⁻¹x</td>
+        </tr>
+        <tr>
+          <td>acot(x)</td>
+          <td>cot⁻¹x</td>
+        </tr>
+        <tr>
+          <td>acoth(x)</td>
+          <td>coth⁻¹x</td>
+        </tr>
+        <tr>
+          <td>asin(x)</td>
+          <td>sin⁻¹x</td>
+        </tr>
+        <tr>
+          <td>asinh(x)</td>
+          <td>sinh⁻¹x</td>
+        </tr>
+        <tr>
+          <td>atan(x)</td>
+          <td>tan⁻¹x</td>
+        </tr>
+        <tr>
+          <td>cos(x)</td>
+          <td>cos x</td>
+        </tr>
+        <tr>
+          <td>cosh(x)</td>
+          <td>cosh x</td>
+        </tr>
+        <tr>
+          <td>cot(x)</td>
+          <td>1/tan x</td>
+        </tr>
+        <tr>
+          <td>coth(x)</td>
+          <td>1/tanh x</td>
+        </tr>
+        <tr>
+          <td>exp(x)</td>
+          <td>e^x</td>
+        </tr>
+        <tr>
+          <td>lg(x)</td>
+          <td>log₁₀x</td>
+        </tr>
+        <tr>
+          <td>ln(x)</td>
+          <td>logₑx</td>
+        </tr>
+        <tr>
+          <td>pow(x,y)</td>
+          <td>xʸ</td>
+        </tr>
+        <tr>
+          <td>sign(x)</td>
+          <td>signo de x</td>
+        </tr>
+        <tr>
+          <td>sin(x)</td>
+          <td>sin x</td>
+        </tr>
+        <tr>
+          <td>sinh(x)</td>
+          <td>sinh x</td>
+        </tr>
+        <tr>
+          <td>sqrt(x)</td>
+          <td>x^0.5</td>
+        </tr>
+        <tr>
+          <td>tan(x)</td>
+          <td>tan x</td>
+        </tr>
+        <tr>
+          <td>tanh(x)</td>
+          <td>tanh x</td>
+        </tr>
+        <tr>
+          <td>H(x)</td>
+          <td>(1 + sign(x))/2</td>
+        </tr>
+      </table>
+    </div>
+
+    <script src="calculous.js"></script>
+  </body>
+</html>
