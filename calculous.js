@@ -1,4 +1,4 @@
-// Implementación de funciones que JS no trae
+// Implementación de funciones adicionales
 function acot(x) { return Math.atan(1/x); }
 function acoth(x) { return 0.5 * Math.log((x+1)/(x-1)); }
 function cot(x) { return 1 / Math.tan(x); }
@@ -8,7 +8,6 @@ function ln(x) { return Math.log(x); }
 function sign(x) { return Math.sign(x); }
 function H(x) { return (1 + Math.sign(x)) / 2; }
 
-// Variables detectadas
 let variablesDetectadas = [];
 
 function detectarVariables() {
@@ -41,6 +40,8 @@ function generarCampos(vars) {
 
 function calcular() {
     const formula = document.getElementById('formula').value;
+    const formulaJS = formula.replace(/\^/g, "**"); // Soporte para potencias con ^
+
     let vars = {};
     for (let v of variablesDetectadas) {
         const valor = parseFloat(document.getElementById(`${v}_val`).value);
@@ -54,35 +55,67 @@ function calcular() {
     document.getElementById('mensaje').textContent = '';
 
     try {
-        const valor = eval(formula.replace(/\b([a-zA-Z_]\w*)\b/g, (_, v) => vars[v] ? vars[v].valor : v));
+        // Calcular valor de la función
+        const valor = eval(formulaJS.replace(/\b([a-zA-Z_]\w*)\b/g, (_, v) => vars[v] ? vars[v].valor : v));
 
         let suma = 0;
+        let derivadasTexto = "";
+
+        // Calcular derivadas parciales
         for (let v of variablesDetectadas) {
             const h = 1e-6;
             const valor_original = vars[v].valor;
             const dev = vars[v].dev;
-            const valor_mas = eval(formula.replace(/\b([a-zA-Z_]\w*)\b/g, (_, name) => 
-                name === v ? (valor_original + h) : (vars[name] ? vars[name].valor : name)
-            ));
+            const valor_mas = eval(
+                formulaJS.replace(/\b([a-zA-Z_]\w*)\b/g, (_, name) => 
+                    name === v ? (valor_original + h) : (vars[name] ? vars[name].valor : name)
+                )
+            );
             const derivada = (valor_mas - valor) / h;
             suma += Math.pow(derivada * dev, 2);
+
+            derivadasTexto += `∂f/∂${v}(${variablesDetectadas.map(name => vars[name].valor).join(",")}) = ${derivada.toFixed(2)}<br>`;
         }
+
         const desviacion = Math.sqrt(suma);
 
+        // Mostrar resultados
         document.getElementById('resultado').textContent = valor.toFixed(6);
         document.getElementById('desv').textContent = desviacion.toFixed(6);
+        document.getElementById('detalles').innerHTML = 
+            `f(${variablesDetectadas.join(",")}) = ${formula}<br>` + derivadasTexto;
+        
+        document.querySelector('.result').style.display = "block";
+        document.getElementById('detalles').style.display = derivadasTexto.trim() !== "" ? "block" : "none";    
+
     } catch (e) {
         document.getElementById('mensaje').textContent = "Error en la fórmula.";
     }
 }
+
+
+
 function borrarTodo() {
     document.getElementById('formula').value = "";
     document.getElementById('vars-container').innerHTML = "";
     document.getElementById('resultado').textContent = "";
     document.getElementById('desv').textContent = "";
     document.getElementById('mensaje').textContent = "";
+    document.getElementById('detalles').innerHTML = "";
+    document.getElementById('detalles').style.display = "none";
+
     variablesDetectadas = [];
 }
+function ocultarResultados() {
+    document.querySelector('.result').style.display = "none";
+    document.getElementById('detalles').style.display = "none";
+    document.getElementById('resultado').textContent = "";
+    document.getElementById('desv').textContent = "";
+    document.getElementById('detalles').innerHTML = "";
+}
+
+// Ocultar resultados al inicio
+ocultarResultados();
 
 /* Formulario de Informacion */
 function guardarInfo() {
@@ -157,3 +190,16 @@ function actualizarCalculos() {
         document.getElementById("desviacion").textContent = desviacion.toFixed(9);
     }
 }
+/* FUNCIONES */
+const toggleButton = document.getElementById("toggle");
+const boxFunctions = document.getElementById("functions");
+toggle.addEventListener("click", function() {
+    if (boxFunctions.style.display === "none") {
+      boxFunctions.style.display = "block"; // mostrar
+      toggleButton.style.borderBottom = "2px solid #eb2a31"
+    } else {
+      boxFunctions.style.display = "none"; // ocultar
+      toggleButton.style.borderBottom = "2px solid #28b451"
+
+    }
+  });
